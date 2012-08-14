@@ -6,15 +6,13 @@ ORG 0x7e00
 BITS 16
 
 
-entry:
+
+s:tage2:
     ; load kernel
     call    load_kernel
 
-    ; switch to protected mode
-    ; and jump into the kernel
-    call    switch_pmode
-
-    jmp     0x8:kernel
+    ; switch to protected mode and jump into the kernel
+    call    jump_kernel
 
 
 
@@ -57,7 +55,7 @@ load_kernel:
 
 
 
-switch_pmode:
+jump_kernel:
     ; disable interrupts and load gdt
     cli
     lgdt    [gdt_info]
@@ -67,12 +65,11 @@ switch_pmode:
     or      al, 1
     mov     cr0, eax
 
-    ret
+    ; set the CS register
+    jmp     0x8:pmode
 
-
-
-BITS 32
-kernel:
+    BITS 32
+    pmode:
     jmp     KERNEL_OFFSET
 
 

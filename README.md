@@ -14,6 +14,7 @@ settled.
 The following is a summary of the limitations of mammos. For more information
 about each limitation, please refer to the sections below.
 
+    - Disk size of 32MBytes maximum.
     - Disk sectors of 512 bytes
     - Block size of 1024 bytes, 2 sectors.
     - Minix filesystem v1.
@@ -40,4 +41,5 @@ block size of 4096 bytes.
 
 ## Memory
 
-
+The memory is limited to 4GB, including the first MByte as well as the upper
+GByte, reserved for I/O. The only endianness supported is little-endian.

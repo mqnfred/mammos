@@ -7,10 +7,13 @@ BITS 16
 
 
 
-; force the cs:ip
-jmp     0x0000:entry
-
 entry:
+    ; force the cs:ip
+    jmp     0x0000:stage1
+
+
+
+stage1:
     ; setup the stack
     mov     sp, STACK_BASE
 

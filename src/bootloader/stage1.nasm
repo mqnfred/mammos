@@ -1,139 +1,128 @@
-; the stage1 (MBR) is loaded at offset 0x7c00
+; stage1, stored in the MBR
+; for more information, see the /design.md file
 
-%define STAGE1_ENTRY 0x7c00
-%define STAGE2_ENTRY 0x7e00
-%define STAGE2_SIZE 0x3e ; in sectors (0x3e * 512 bytes)
-%define STACK_BASE 0x7bf0 ; under the mbr in memory at 0x7c00
+%define STAGE1_ENTRY    0x7c00
+
+%define STAGE2_ENTRY    0x7e00
+%define STAGE2_SIZE     61
+
+%define STACK_BASE      0x7bf0
 
 ORG STAGE1_ENTRY
 BITS 16
 
 
-stage1_entry:
-    ; indicate that we're in stage1
-    call    print_msg
 
-    ; only the %es segment register will be switched to unreal mode
+stage1_entry:
+    ; first, enter unreal mode with %es only (for later use with rep movsb...)
     call    enter_unrealmode
 
-    ; set a tidy stack just below the mbr, and before the IVT/BDA
+    ; second, setup the stack in a tidy place (right below MBR in linear mem)
     mov     sp, STACK_BASE
 
-    ; find bootable partition for our master, stage2
-    ; it's most likely the first one
-    ; also save the disk number, which is in dl
-    push    dx
-    call    find_bootable
+    ; third, retrieve information about the drive on which the OS is running
+    call    disk_infos
 
-    ; we're out of here
+    ; fourth, load the stage2 binary, located in the EBR (from sectors 2 to
+    ; sector 63, 61 sectors wide)
     call    load_stage2
+
+    ; fifth, jump into the stage2
     jmp     STAGE2_ENTRY
 
 
-; print the following message in order to indicate to the user that everything
-; is doing fine.
-msg:
-    db      "Stage 1 loading!", 0xd, 0xa, 0x0
-print_msg:
-    mov     si, msg
-    mov     bh, 0x1
-    mov     ah, 0xe
 
-    ; iterate over the characters and print them
-print_msg_loop:
-    ; print character
-    mov     al, [si]
-    int     0x10
-
-    ; go on to the next character, leave if it is 0
-    add     si, 0x1
-    cmp byte [si], 0x0
-    jne     print_msg_loop
-
-    ret
-
-
-load_stage2:
-    ; set opcode, copy address and number of sectors to copy
-    mov     ah, 0x2
-    mov     al, STAGE2_SIZE
-    mov     bx, STAGE2_ENTRY
-
-    ; set respectively head, sector and cylinder
-    mov     dh, 0x0
-    mov     cl, 0x2
-    mov     ch, 0x0
-
-    ; let's roll
-    int     0x13
-    ret
-
-
-; we set only es in unrealmode, since ds or ss can create problems with
-; BIOS routine calls this will stil allow us to access the whole 4GB memory
-; with es:addr
-unreal_gdt_info:
-    dw      enter_unrealmode - unreal_gdt - 1 ; enter_unrealmode = end of gdt
-    dd      unreal_gdt
-unreal_gdt:
-    dd      0, 0 ; null segment
-    db      0xff, 0xff, 0, 0, 0, 10010010b, 11001111b, 0
-enter_unrealmode: ; mark both the start of the function and the end of the gdt
-    ; save flags, block interrupts and load the gdt in gdtr
+enter_unrealmode:
+    ; save flags, %es base address, ignore IRQs and load the gdt
+    push    es
     pushfd
     cli
-    lgdt    [unreal_gdt_info]
+    lgdt    [gdtdesc]
 
-    ; save base of register
-    push    es
+    ; enter protected mode
+    mov     eax, cr0
+    or      al, 1
+    mov     cr0, eax
 
-    ; enter pmode
-    mov     eax,cr0
-    or      al,1
-    mov     cr0,eax
-
-    ; load gdt entry with 4GB limit
+    ; load the %es segment register with the entry in the gdt at index 0x8
     mov     bx, 0x8
     mov     es, bx
 
-    ; exit pmode
+    ; exit protected mode
     mov     eax, cr0
     and     al, 0xfe
     mov     cr0, eax
 
-    ; retrieve base of register
-    pop     es
-
-    ; restore flags and leave
+    ; restore flags, %es base address and return
     popfd
+    pop     es
     ret
 
 
-; push into the stack the bootable partition entry
-; if no bootable partition is found, pick the first one
-find_bootable:
-    ; save the return address to push it before returning
-    pop     ax
+
+disk_infos:
+    ; first, find the bootable partition entry address
+    ; start at entry -1 (see why below)
     mov     bx, STAGE1_ENTRY + 0x1be - 0x10
 
-find_bootable_loop:
+    loop:
+    ; next entry index and test
     add     bx, 0x10
+    cmp     0x80, byte [bx]
+    je      found
 
-    ; 0x80 is the valid value for a bootable partition
-    cmp byte [bx], 0x80
-    je      find_bootable_endwell
-
-    ; there's only 4 primary partitions valid
+    ; test index and leave/go on to next entry
     cmp     bx, STAGE1_ENTRY + 0x1ee
-    jne     find_bootable_loop
+    jne     loop
 
-    ; no bootable partition was found, default it to the first one
-    mov     bx, STAGE1_ENTRY + 0x1be
+    ; when nothing bootable, default to the first partition
+    mov     bx, STAGE_ENTRY + 0x1be
 
-; push the address of the bootable partition entry and move
-find_bootable_endwell:
-    push    bx
+    ; bx contains the address of a valid partition entry
+    ; we push respectively: disk number, starting head, sector and cylinder
+    found:
+    push    dx
+    push    [bx + 1]
+    push    [bx + 2]
+    push    [bx + 3]
 
-    ; don't forget to push the return address before returning
-    push    ax
+
+
+load_stage2:
+    ; reset the disk's heads, %dl already contains the disk number
+    mov     ah, 0x0
+    int     0x13
+
+    ; load opcode, destination address, stage2 length in sectors
+    mov     ah, 0x2
+    mov     bx, STAGE2_ENTRY
+    mov     al, STAGE2_SIZE
+
+    ; load the disk informations (%dl already contains the disk number)
+    mov     ch, 0x0
+    mov     cl, 0x2
+    mov     dh, 0x0
+
+    ; actual read and exit
+    int     0x13
     ret
+
+
+
+; ----
+; DATA
+; ----
+gdt:
+    ; null segment
+    db  0x00, 0x00, 0x00, 0x00
+    db  0x00, 0x00, 0x00, 0x00
+
+    ; kernel data segment descriptor, used to load %es
+    db  0xff, 0xff, 0x00, 0x00
+    db  0x00, 0x92, 0xcf, 0x00
+
+
+
+gdtdesc:
+    dw  gdtdesc - gdt - 1
+    dd  gdt

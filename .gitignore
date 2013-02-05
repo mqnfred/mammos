@@ -1,0 +1,5 @@
+bin/
+utils/drive
+*.o
+*.bin
+a.out

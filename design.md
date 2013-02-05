@@ -7,6 +7,10 @@ stage1 is in charge of setting up a basic environment for the stage2 to work
 on. The stage2 itself is in charge of loading the kernel and jumping there,
 ending the boot process.
 
+### stage 1
+
+Here is a clear and exhaustive list of all things done by the first stage.
+
     - Entering unreal mode with segment register %es, which will be used by
       stage2 when copying kernel above 1MB in physical memory.
 
@@ -31,3 +35,28 @@ ending the boot process.
 
     - The stage2 loaded in memory, it's time for the stage1 to end. A simple
       jump to location 0x7e00 will do just that.
+
+Thus far, the memory layout of the physical low-memory area is the following:
+
+    +------------------------------+ 0xFFFF
+   ...                            ...
+    | Stage 2 code                 |
+    +------------------------------+ 0x7e00
+    | MBR Magic Number (0x55aa)    |
+    +------------------------------+ 0x7df0
+    | Partition table              |
+    +------------------------------+ 0x7dbe
+    | Stage 1 code                 |
+    +------------------------------+ 0x7c00
+    | Unused space (2 bytes)       |
+    +------------------------------+ 0x7bf0
+    | Stack (growing down)         |
+   ...                            ...
+    |                              |
+    +------------------------------+ 0x0500
+    | BIOS Data Area (BDA)         |
+    +------------------------------+ 0x0400
+    | Interrupt Vector Table (IVT) |
+    +------------------------------+ 0x0000
+
+### stage 2

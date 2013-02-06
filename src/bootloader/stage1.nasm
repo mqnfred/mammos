@@ -61,6 +61,9 @@ enter_unrealmode:
 
 
 disk_infos:
+    ; save the return address (this is called)
+    pop     ax
+
     ; first, find the bootable partition entry address
     ; start at entry -1 (see why below)
     mov     bx, STAGE1_ENTRY + 0x1be - 0x10
@@ -68,23 +71,24 @@ disk_infos:
     loop:
     ; next entry index and test
     add     bx, 0x10
-    cmp     0x80, byte [bx]
+    cmp     byte [bx], 0x80
     je      found
 
     ; test index and leave/go on to next entry
     cmp     bx, STAGE1_ENTRY + 0x1ee
-    jne     loop
+    je      halt
 
-    ; when nothing bootable, default to the first partition
-    mov     bx, STAGE_ENTRY + 0x1be
-
-    ; bx contains the address of a valid partition entry
-    ; we push respectively: disk number, starting head, sector and cylinder
+    ; test if partition is minix (code 0x81)
     found:
+    cmp     byte [bx + 4], 0x81
+    jne     halt
+
+    ; bx contains the address of a valid partition entry, push it on the stack
     push    dx
-    push    [bx + 1]
-    push    [bx + 2]
-    push    [bx + 3]
+    push    bx
+
+    ; restore return address
+    push    ax
 
 
 
@@ -106,6 +110,13 @@ load_stage2:
     ; actual read and exit
     int     0x13
     ret
+
+
+
+; stall when an error occurs
+halt:
+    hlt
+    jmp     halt
 
 
 

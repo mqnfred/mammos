@@ -1,6 +1,5 @@
 # basic drive variables
-DEVICE			= utils/drive
-PART_TABLE		= utils/partitions
+DEVICE			= check/drive
 
 
 # bootloader variables

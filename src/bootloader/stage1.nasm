@@ -14,6 +14,9 @@ BITS 16
 
 
 stage1_entry:
+    ; check BIOS Logical Block Addressing (LBA) availability
+    call    check_lba
+
     ; first, enter unreal mode with %es only (for later use with rep movsb...)
     call    enter_unrealmode
 
@@ -29,6 +32,17 @@ stage1_entry:
 
     ; fifth, jump into the stage2
     jmp     STAGE2_ENTRY
+
+
+
+
+check_lba:
+    mov     ah, 0x41
+    mov     bx, 0x55aa
+    int     0x13
+    cmp     bx, 0xaa55
+    jne     stall
+    ret
 
 
 
@@ -76,16 +90,18 @@ disk_infos:
 
     ; test index and leave/go on to next entry
     cmp     bx, STAGE1_ENTRY + 0x1ee
-    je      halt
+    je      stall
 
-    ; test if partition is minix (code 0x81)
+    ; test if partition is old minix (code 0x80)
     found:
-    cmp     byte [bx + 4], 0x81
-    jne     halt
+    cmp     byte [bx + 4], 0x80
+    jne     stall
 
-    ; bx contains the address of a valid partition entry, push it on the stack
+    ; push the LBA of the partition contained in %bx as well as %dx (disk nbr)
+    ; the lba is a double word, and the stack only pushes words
     push    dx
-    push    bx
+    push    word [bx + 8]
+    push    word [bx + 10]
 
     ; restore return address
     push    ax
@@ -97,26 +113,20 @@ load_stage2:
     mov     ah, 0x0
     int     0x13
 
-    ; load opcode, destination address, stage2 length in sectors
-    mov     ah, 0x2
-    mov     bx, STAGE2_ENTRY
-    mov     al, STAGE2_SIZE
-
-    ; load the disk informations (%dl already contains the disk number)
-    mov     ch, 0x0
-    mov     cl, 0x2
-    mov     dh, 0x0
-
-    ; actual read and exit
+    ; extended read with infos at ebr_addr and exit if no error, stall otherwise
+    mov     ah, 0x42
+    mov     si, ebr_addr
     int     0x13
+    cmp     ah, 0x00
+    jne     stall
     ret
 
 
 
 ; stall when an error occurs
-halt:
+stall:
     hlt
-    jmp     halt
+    jmp     stall
 
 
 
@@ -137,3 +147,11 @@ gdt:
 gdtdesc:
     dw  gdtdesc - gdt - 1
     dd  gdt
+
+
+
+ebr_addr:
+    db  0x10, 0x00
+    dw  STAGE2_SIZE
+    dw  STAGE2_ENTRY, 0x0000 ; little endian!
+    dq  0x1 ; first sector after MBR

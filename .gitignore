@@ -1,6 +1,6 @@
 bin/
-mnt/
-drive
+check/
+*drive*
 *.o
 *.bin
 a.out

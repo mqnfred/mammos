@@ -19,7 +19,8 @@ la n
 
 # breakpoint at bootloader and kernel offset
 b *0x7c00
-b *0x100000
+b start
+b kmain
 
 # macro to start debugging the bootloader
 define bootloader
@@ -38,6 +39,12 @@ end
 define halt
     monitor quit
     quit
+end
+
+# restart the system
+define reset
+    monitor system_reset
+    stepi
 end
 
 # vim: ft=gdb

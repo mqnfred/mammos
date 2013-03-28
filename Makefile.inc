@@ -5,8 +5,8 @@ BINDIR		= bin/
 CHECKDIR	= check/
 
 # binary names definition
-BOOT_BIN	= boot.bin
-KERN_BIN	= kernel.bin
+BOOT_BIN	= $(BINDIR)boot.bin
+KERN_BIN	= $(BINDIR)kernel.bin
 
 # compiler, assembler and linker definition
 CC			= gcc
@@ -43,5 +43,7 @@ DB			= gdb
 EMFLAGS		= -s -S
 DBFLAGS		= -q
 
-# debugger script file
+# various debugger definitions
+# the elf kernel is used to match symbols with addresses whlie debugging
+KERN_ELF	= $(BINDIR)debug_kernel.elf
 DB_SCRIPT	= $(CHECKDIR)gdb.init

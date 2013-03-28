@@ -32,8 +32,8 @@ OBJS		= $(addprefix $(OBJDIR), $(addprefix asm_, $(AS_SRC:.asm=.o)) $(C_SRC:.c=.
 BOOT_SRC	= boot.asm
 
 # drive and table definition
-DRIVE		= check/drive
-TABLE		= check/table
+DRIVE		= $(CHECKDIR)drive
+TABLE		= $(CHECKDIR)table
 
 # emulator and debugger definition
 EM			= qemu-system-i386
@@ -41,3 +41,7 @@ DB			= gdb
 
 # emulator flags
 EMFLAGS		= -s -S
+DBFLAGS		= -q
+
+# debugger script file
+DB_SCRIPT	= $(CHECKDIR)gdb.init

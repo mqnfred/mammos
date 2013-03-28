@@ -37,5 +37,10 @@ distclean: clean
 	rm -rf $(BINDIR) $(DRIVE)
 
 check: floppy
+	$(EM) $(DRIVE)
+
+test: floppy
 	$(EM) $(EMFLAGS) $(DRIVE) 2>&1 1>/dev/null &
-	$(DB)
+	sleep 0.5
+	$(DB) $(DBFLAGS) -x $(DB_SCRIPT)
+	reset

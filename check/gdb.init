@@ -1,0 +1,43 @@
+set confirm off
+
+define i8086
+    set architecture i8086
+end
+
+define i386
+    set architecture i386
+end
+
+# connect to qemu
+target remote localhost:1234
+
+# setup display mode (registers + assembly)
+la n
+la n
+la n
+la n
+
+# breakpoint at bootloader and kernel offset
+b *0x7c00
+b *0x100000
+
+# macro to start debugging the bootloader
+define bootloader
+    i8086
+    continue
+end
+
+# macro to start debugging the kernel
+define kernel
+    i386
+    continue
+    continue
+end
+
+# close the qemu session
+define halt
+    monitor quit
+    quit
+end
+
+# vim: ft=gdb

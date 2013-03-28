@@ -99,6 +99,15 @@ test_partitionning:
     cmp     ax, 0
     jne     trigger_error
 
+    ; test if the entry is valid (total sectors != 0)
+    mov     ax, [PART + 12]
+    cmp     ax, 0
+    jne     good
+    mov     ax, [PART + 14]
+    cmp     ax, 0
+    je      trigger_error
+
+    good:
     ret
 
 

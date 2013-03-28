@@ -1,6 +1,6 @@
 bin/
-check/
-*drive*
-*.o
-*.bin
+objs/
+check/drive
+
+*.{o,bin}
 a.out

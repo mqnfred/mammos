@@ -1,33 +1,41 @@
-include Makefile.am
+include Makefile.inc
 
+all: bootloader kernel
 
-all: bootloader
+bootloader: $(SRCDIR)$(BOOT_SRC) $(BINDIR)
+	$(AS) $< -o $(BINDIR)$(BOOT_BIN)
 
+kernel: bootloader $(OBJS) $(BINDIR)
+	$(LD) $(LDFLAGS) -T $(SRCDIR)$(LD_SRC) $(OBJS) -o $(BINDIR)$(KERN_BIN)
+	chmod a-x $(BINDIR)$(KERN_BIN)
 
-bootloader: bin stage1 stage2
+$(OBJDIR)%.o: $(SRCDIR)%.c $(OBJDIR)
+	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CPY) $(CPYFLAGS) $@ $@
 
+$(OBJDIR)asm_%.o: $(SRCDIR)%.asm $(OBJDIR)
+	$(AS) $(ASFLAGS) -o $@ $<
 
-stage1:
-	# generate flat binary linked at offset 0x7c00 and then
-	# blend in the stage1 at offset 0x0 (MBR) in the disk
-	nasm $(STAGE1_SRC) -o $(STAGE1_BIN)
-	dd if=$(STAGE1_BIN) of=$(DEVICE) bs=1 count=$(STAGE1_SIZE) conv=notrunc
+drive: $(TABLE)
+	dd if=/dev/zero bs=1M count=64 of=$(DRIVE)
+	dd if=$(TABLE) of=$(DRIVE) bs=1 count=512 conv=notrunc
 
+floppy: drive bootloader kernel
+	dd if=$(BINDIR)$(BOOT_BIN) of=$(DRIVE) bs=1 count=440 conv=notrunc
+	dd if=$(BINDIR)$(KERN_BIN) of=$(DRIVE) bs=512 seek=1 count=2047 conv=notrunc
 
-stage2:
-	# generate flat binary linked at offset 0x7e00 and then
-	# blend it in the drive at offset 512 bytes (right after MBR) in the disk
-	nasm $(STAGE2_SRC) -o $(STAGE2_BIN)
-	dd if=$(STAGE2_BIN) of=$(DEVICE) bs=1 count=$(STAGE2_SIZE) seek=512 conv=notrunc
+$(OBJDIR):
+	mkdir $(OBJDIR)
 
-
-check: all
-	qemu-system-i386 $(DEVICE) -s -S
-
-
-bin:
-	mkdir bin
-
+$(BINDIR):
+	mkdir $(BINDIR)
 
 clean:
-	rm -rf bin
+	rm -rf $(OBJDIR)
+
+distclean: clean
+	rm -rf $(BINDIR) $(DRIVE)
+
+check: floppy
+	$(EM) $(EMFLAGS) $(DRIVE) 2>&1 1>/dev/null &
+	$(DB)

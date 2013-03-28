@@ -1,5 +1,4 @@
 OUTPUT_FORMAT("binary")
-STARTUP(bin/init.o)
 ENTRY(start)
 phys = 0x100000;
 

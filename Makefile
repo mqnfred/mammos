@@ -43,7 +43,7 @@ debug:
 check: floppy
 	$(EM) $(DRIVE)
 
-test: debug floppy
+test: floppy debug
 	$(EM) $(EMFLAGS) $(DRIVE) 2>&1 1>/dev/null &
 	sleep 0.5
 	$(DB) $(DBFLAGS) -x $(DB_SCRIPT) -s $(KERN_ELF)

@@ -156,6 +156,14 @@ jump_kernel:
     or      al, 1
     mov     cr0, eax
 
+    ; setup standart segment selectors
+    mov     ax, 0x10
+    mov     ds, ax
+    mov     es, ax
+    mov     fs, ax
+    mov     gs, ax
+    mov     ss, ax
+
     ; set the CS register
     jmp     0x8:pmode
 

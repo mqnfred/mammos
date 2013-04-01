@@ -1,19 +1,8 @@
-#include <gdt.h>
-#include <idt.h>
+#include <stdlib.h>
 
 
+__attribute__((noreturn))
 void kmain(void)
 {
-    setup_gdt();
-    setup_idt();
-    setup_irq();
-
-    int a = 12;
-    int b = 0;
-
-    int c = a / b;
-
-    (void)c;
-
     while (1);
 }

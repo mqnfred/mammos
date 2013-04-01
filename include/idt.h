@@ -23,7 +23,9 @@ struct idt_ptr
 
 extern void flush_idt(struct idt_ptr* ptr);
 extern void setup_irq(void);
+
 extern void div_zero_exception(void);
+extern void page_fault_exception(void);
 
 
 void setup_idt(void);

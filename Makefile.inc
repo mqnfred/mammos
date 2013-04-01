@@ -15,13 +15,13 @@ LD			= ld
 CPY			= objcopy
 
 # compiler, assembler and linker flags
-CFLAGS		= -m32 -Iinclude -Werror -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding
+CFLAGS		= -m32 -Iinclude -Werror -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding -std=c99
 ASFLAGS		= -f elf
 LDFLAGS		= -melf_i386 --gc-sections
 CPYFLAGS	= --remove-section .eh_frame --remove-section .comment
 
 # kernel source files
-C_SRC		= kernel.c gdt.c idt.c
+C_SRC		= kernel.c gdt.c idt.c stdlib.c memory.c
 AS_SRC		= entry.asm isr.asm
 LD_SRC		= linker.ld
 
@@ -45,5 +45,5 @@ DBFLAGS		= -q
 
 # various debugger definitions
 # the elf kernel is used to match symbols with addresses whlie debugging
-KERN_ELF	= $(BINDIR)debug_kernel.elf
+KERN_ELF	= $(BINDIR)kernel.elf
 DB_SCRIPT	= $(CHECKDIR)gdb.init

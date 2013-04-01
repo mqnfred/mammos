@@ -1,11 +1,14 @@
 ENTRY(start)
-phys = 0x100000;
+
+kernel_offset = 0x100000;
+stack_offset = 0x200000;
+memory_size = 0x400 * 0x400 * 0x10;
 
 SECTIONS
 {
     . = 0x0;
 
-    .text phys : AT(phys)
+    .text kernel_offset : AT(kernel_offset)
     {
         code = .;
         *(.text)
@@ -14,19 +17,19 @@ SECTIONS
         . = ALIGN(0x10);
     }
 
-    .data : AT(phys + (data - code))
+    .data : AT(kernel_offset + (data - code))
     {
         data = .;
         *(.data)
         . = ALIGN(0x10);
     }
 
-    .bss : AT(phys + (bss - code))
+    .bss : AT(kernel_offset + (bss - code))
     {
         bss = .;
         *(.bss)
         . = ALIGN(0x10);
     }
 
-    end = .;
+    kernel_end = .;
 }

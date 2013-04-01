@@ -5,15 +5,38 @@
 
 
 
+global flush_gdt
+global flush_idt
+
+
+
+extern stack_offset
+extern memory_size
+
+extern setup_idt
+extern setup_gdt
+extern setup_mem
+
 extern kmain
+
+
+
 global start
 start:
-    mov     esp, 0x180000
+    mov     esp, stack_offset
+
+    call    setup_gdt
+    call    setup_idt
+    call    setup_irq
+
+    push    dword stack_offset
+    push    dword memory_size
+    call    setup_mem
+
     call    kmain
 
 
 
-global flush_gdt
 flush_gdt:
     push    dword ebp
     mov     ebp, esp
@@ -21,6 +44,15 @@ flush_gdt:
     mov     eax, [ebp + 8]
     lgdt    [eax]
 
+    ; setup standart segment selectors
+    mov     ax, 0x10
+    mov     ds, ax
+    mov     es, ax
+    mov     fs, ax
+    mov     gs, ax
+    mov     ss, ax
+
+    ; setup code segment selector
     jmp     0x08:pmode
     pmode:
 
@@ -30,7 +62,6 @@ flush_gdt:
 
 
 
-global flush_idt
 flush_idt:
     push    dword ebp
     mov     ebp, esp
@@ -44,7 +75,6 @@ flush_idt:
 
 
 
-global setup_irq
 setup_irq:
     ; send ICW1
     mov     al, ICW1

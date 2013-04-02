@@ -2,6 +2,8 @@
 # define GDT_H
 
 # include <stdint.h>
+# include <stdlib.h>
+# include <kheap.h>
 
 
 struct gdt_entry

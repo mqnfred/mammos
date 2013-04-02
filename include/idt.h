@@ -2,6 +2,8 @@
 # define IDT_H
 
 # include <stdint.h>
+# include <stdlib.h>
+# include <kheap.h>
 
 
 struct idt_entry
@@ -28,6 +30,7 @@ extern void div_zero_exception(void);
 extern void page_fault_exception(void);
 
 
+void add_isr(int no, uint32_t ba, uint16_t sel, uint8_t flags);
 void setup_idt(void);
 
 

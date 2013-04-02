@@ -21,7 +21,7 @@ LDFLAGS		= -melf_i386 --gc-sections
 CPYFLAGS	= --remove-section .eh_frame --remove-section .comment
 
 # kernel source files
-C_SRC		= kernel.c gdt.c idt.c stdlib.c memory.c
+C_SRC		= kernel.c gdt.c idt.c stdlib.c kheap.c paging.c 
 AS_SRC		= entry.asm isr.asm
 LD_SRC		= linker.ld
 

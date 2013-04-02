@@ -1,7 +1,7 @@
 #include <gdt.h>
 
 
-static struct gdt_entry gdt[3];
+static struct gdt_entry* gdt = NULL;
 
 
 static void add_entry(int no, uint64_t ba, uint64_t li, uint8_t ac, uint8_t gr)
@@ -23,10 +23,14 @@ static void add_entry(int no, uint64_t ba, uint64_t li, uint8_t ac, uint8_t gr)
 
 void setup_gdt(void)
 {
+    // setup gdt on top of kernel heap
+    gdt = kalloc(3 * sizeof (struct gdt_entry), 0x8, 0x0);
+    memset(gdt, 0, 3 * sizeof (struct gdt_entry));
+
     struct gdt_ptr ptr =
     {
-        sizeof (gdt) - 1,
-        (uint32_t)&gdt,
+        3 * sizeof (struct gdt_entry) - 1,
+        (uint32_t)gdt,
     };
 
     // null segment descriptor

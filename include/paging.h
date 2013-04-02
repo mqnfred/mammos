@@ -41,7 +41,7 @@ struct page_table
 };
 
 
-void setup_mem(uint32_t mem_size, uint32_t stack_offset);
+void setup_mem(uint32_t mem_size, uint32_t non_kernel_mem);
 void switch_page_dir(struct page_dir *new_dir);
 struct page *get_page(uint32_t address, bool make, struct page_dir* dir);
 

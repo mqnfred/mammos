@@ -88,7 +88,7 @@ static inline void activate_paging(void)
 }
 
 
-void setup_mem(uint32_t mem_size, uint32_t stack_offset)
+void setup_mem(uint32_t mem_size, uint32_t non_kernel_mem)
 {
     frame_count = mem_size / PAGE_SIZE;
 
@@ -97,7 +97,7 @@ void setup_mem(uint32_t mem_size, uint32_t stack_offset)
 
     cur_dir = ker_dir = kalloc(sizeof (struct page_dir), PAGE_SIZE, NULL);
 
-    for (uint32_t addr = 0; addr <= stack_offset; addr += PAGE_SIZE)
+    for (uint32_t addr = 0; addr < non_kernel_mem; addr += PAGE_SIZE)
         alloc_frame(get_page(addr, true, ker_dir), false, false);
 
     switch_page_dir(ker_dir);

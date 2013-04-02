@@ -45,5 +45,5 @@ DBFLAGS		= -q
 
 # various debugger definitions
 # the elf kernel is used to match symbols with addresses whlie debugging
-KERN_ELF	= $(BINDIR)kernel.elf
+KERN_ELF	= $(OBJDIR)kernel.elf
 DB_SCRIPT	= $(CHECKDIR)gdb.init

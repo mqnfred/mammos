@@ -1,8 +1,6 @@
 # include <kheap.h>
 
 
-// the "top" of the heap is at the far end of the kernel code/data segments
-// this is denoted by kernel_end, symbol defined by the linker.ld file
 extern uint32_t kernel_end;
 uint32_t freemem_offset = (uint32_t)&kernel_end;
 

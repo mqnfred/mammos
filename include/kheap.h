@@ -2,6 +2,7 @@
 # define KHEAP_H
 
 # include <stdint.h>
+# include <stdlib.h>
 
 
 void* kalloc(uint32_t size, uint32_t align, uint32_t* phys);

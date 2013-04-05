@@ -8,11 +8,6 @@
 global flush_gdt
 global flush_idt
 
-
-
-extern stack_offset
-extern memory_size
-
 extern setup_idt
 extern setup_gdt
 extern setup_mem
@@ -23,14 +18,12 @@ extern kmain
 
 global start
 start:
-    mov     esp, stack_offset
-
     call    setup_gdt
     call    setup_idt
     call    setup_irq
 
-    push    dword stack_offset
-    push    dword memory_size
+    ; the memory size is a parameter to this (right at %esp)
+    ; setup by the custom bootloader
     call    setup_mem
 
     call    kmain

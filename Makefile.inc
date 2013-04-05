@@ -21,7 +21,7 @@ LDFLAGS		= -melf_i386 --gc-sections
 CPYFLAGS	= --remove-section .eh_frame --remove-section .comment
 
 # kernel source files
-C_SRC		= kernel.c gdt.c idt.c stdlib.c kheap.c paging.c 
+C_SRC		= kernel.c gdt.c idt.c stdlib.c kheap.c frames.c paging.c
 AS_SRC		= entry.asm isr.asm
 LD_SRC		= linker.ld
 
@@ -45,5 +45,5 @@ DBFLAGS		= -q
 
 # various debugger definitions
 # the elf kernel is used to match symbols with addresses whlie debugging
-KERN_ELF	= $(OBJDIR)kernel.elf
+KERN_ELF	= $(OBJDIR)kernel_final.elf
 DB_SCRIPT	= $(CHECKDIR)gdb.init

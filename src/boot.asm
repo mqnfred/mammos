@@ -45,7 +45,10 @@ main:
 
     ; load and jump to the kernel in protected mode
     call    load_kernel
-    call    jump_kernel
+
+    ; no probing of memory, currently sending 1G to the kernel
+    push    dword 0x400 * 0x400 * 0x400
+    jmp     jump_kernel
     ;call    trigger_error
 
 

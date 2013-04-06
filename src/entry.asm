@@ -1,17 +1,19 @@
-%define PIC1 0x20
-%define PIC2 0xA0
-%define ICW1 0x11
-%define ICW4 0x1
+%define PIC1        (0x20)
+%define PIC2        (0xA0)
+%define ICW1        (0x11)
+%define ICW4        (0x1)
+%define PAGE_SIZE   (0x1000)
 
 
 
 global flush_gdt
 global flush_idt
 
+extern setup_frames
+extern setup_paging
 extern setup_idt
 extern setup_gdt
-extern setup_mem
-
+extern mmap
 extern kmain
 
 
@@ -25,6 +27,8 @@ start:
     ; the memory size is a parameter to this (right at %esp)
     ; setup by the custom bootloader
     call    setup_mem
+
+    ; setup the stack at the top of memory (grows downward)
 
     call    kmain
 
@@ -90,4 +94,16 @@ setup_irq:
     mov     al, ICW4
     out     PIC1 + 1, al
     out     PIC2 + 1, al
+    ret
+
+
+
+setup_mem:
+    ; the argument to setup_frames() is the memory size, passed by start()
+    push    dword [esp + 4]
+
+    call    setup_frames
+    call    setup_paging
+
+    add     esp, 4
     ret

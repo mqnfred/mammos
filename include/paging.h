@@ -9,21 +9,21 @@
 
 struct page_table
 {
-    struct page pages[0x400];
+    uint32_t pages[1024];
 };
 
 
- struct page_dir
+struct page_dir
 {
-    struct page_table* tables[0x400];
-    uint32_t tables_phys_addr[0x400];
-    uint32_t physicalAddr;
+    struct page_table* tables[1024];
 };
 
 
-void mmap(void* addr);
-void setup_mem(uint32_t mem_size);
-void switch_page_dir(struct page_dir *new_dir);
+void mmap(uint32_t address);
+void munmap(uint32_t address);
+
+
+void setup_paging(void);
 
 
 #endif // !PAGING_H

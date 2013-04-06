@@ -5,29 +5,11 @@ static struct page_dir* ker_dir = NULL;
 static struct page_dir* cur_dir = NULL;
 
 
-static struct page* get_page(uint32_t address, bool make, struct page_dir* dir)
-{
-    uint32_t idx = (address /= PAGE_SIZE) / 0x400;
-
-    if (dir->tables[idx])
-        return &dir->tables[idx]->pages[address % 0x400];
-    else if(make)
-    {
-        uint32_t tmp;
-        dir->tables[idx] = kalloc(sizeof (struct page_table), PAGE_SIZE, &tmp);
-        dir->tables_phys_addr[idx] = tmp | 0x7;
-        return &dir->tables[idx]->pages[address % 0x400];
-    }
-
-    return 0x0;
-}
-
-
 __attribute__((always_inline))
-inline void switch_page_dir(struct page_dir* new_dir)
+static inline void switch_page_dir(struct page_dir* new_dir)
 {
     cur_dir = new_dir;
-    __asm__ volatile("mov %0, %%cr3" : : "r" (&new_dir->tables_phys_addr));
+    __asm__ volatile("mov %0, %%cr3" : : "r" (&new_dir->tables));
 }
 
 
@@ -41,24 +23,52 @@ static inline void activate_paging(void)
 }
 
 
-void setup_mem(uint32_t mem_size)
+void setup_paging(void)
 {
-    // setup frame management
-    setup_frame_management(mem_size);
+    // setup kernel directory as well as the first page table in the
+    // directory, they will identity map the low-memory, the kernel and
+    // everything up to themselves (included)
+    ker_dir = kalloc(PAGE_SIZE, PAGE_SIZE, 0x0);
+    ker_dir->tables[0] = kalloc(PAGE_SIZE, PAGE_SIZE, 0x0);
+    ker_dir->tables[0] = (void*)((uint32_t)ker_dir->tables[0] | 0x7);
+    for (uint32_t i = 0x0; i < freemem_offset; i += PAGE_SIZE)
+    {
+        struct page_table* ptr = ker_dir->tables[0];
+        ptr = (void*)((uint32_t)ptr & 0xFFFFF000);
+        ptr->pages[i / PAGE_SIZE] = alloc_frame() | 0x7;
+    }
 
-    // setup kernel directory
-    ker_dir = kalloc(sizeof (struct page_dir), PAGE_SIZE, NULL);
+    // allocate the frames for the remainding page tables
+    for (uint16_t i = 1; i < 1023; i += 1)
+        ker_dir->tables[i] = (void*)(alloc_frame() | 0x7);
+    ker_dir->tables[1023] = (void*)((uint32_t)ker_dir | 0x7);
 
-    // setup page tables and page entries for identity mapping
-    for (uint32_t addr = 0; addr < freemem_offset; addr += PAGE_SIZE)
-        mmap((void*)addr);
-
+    // finally activate paging
     switch_page_dir(ker_dir);
     activate_paging();
 }
 
 
-void mmap(void* addr)
+__attribute__((always_inline))
+static inline uint32_t* get_page_entry_address(uint32_t address)
 {
-    alloc_frame(get_page((uint32_t)addr, true, ker_dir), false, false);
+    address /= PAGE_SIZE;
+    struct page_table* pgt = (void*)0xFFC00000;
+    pgt += address / 1024;
+    return &pgt->pages[address % 1024];
+}
+
+
+void mmap(uint32_t address)
+{
+    uint32_t* page_entry = get_page_entry_address(address);
+    *page_entry = (alloc_frame() & 0xFFFFF000) | 0x7;
+}
+
+
+void munmap(uint32_t address)
+{
+    uint32_t* page_entry = get_page_entry_address(address);
+    free_frame(*page_entry & 0xFFFFF000);
+    *page_entry = 0x0;
 }

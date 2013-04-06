@@ -1,16 +1,13 @@
 #include <stdlib.h>
+#include <paging.h>
 
 
 __attribute__((noreturn))
 void kmain(void)
 {
-    int a = 1;
-    int b = 0;
-    int c = a / b;
-
-    (void)a;
-    (void)b;
-    (void)c;
+    mmap(freemem_offset);
+    munmap(freemem_offset);
+    mmap(freemem_offset);
 
     while (1);
 }

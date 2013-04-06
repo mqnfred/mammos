@@ -1,7 +1,6 @@
 # include <kheap.h>
 
 
-extern uint32_t kernel_end;
 uint32_t freemem_offset = (uint32_t)&kernel_end;
 
 

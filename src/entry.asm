@@ -8,7 +8,6 @@
 
 global flush_gdt
 global flush_idt
-
 extern freemem_offset
 extern setup_heap
 extern setup_frames
@@ -31,6 +30,11 @@ start:
     call    setup_mem
 
     ; setup the stack at the top of memory (grows downward)
+    ; mmap the first 4kB right below 4GBytes - 4MBytes since the last 4MBytes
+    ; of address space are reserved for page directory recursive mapping
+    push    dword 0xFFC00000 - PAGE_SIZE
+    call    mmap
+    mov     esp, 0xFFC00000
 
     call    kmain
 

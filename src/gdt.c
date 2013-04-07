@@ -24,7 +24,7 @@ static void add_entry(int no, uint64_t ba, uint64_t li, uint8_t ac, uint8_t gr)
 void setup_gdt(void)
 {
     // setup gdt on top of kernel heap
-    gdt = kalloc(3 * sizeof (struct gdt_entry), 0x8, 0x0);
+    gdt = init_kmalloc(3 * sizeof (struct gdt_entry), 0x8, 0x0);
     memset(gdt, 0, 3 * sizeof (struct gdt_entry));
 
     struct gdt_ptr ptr =

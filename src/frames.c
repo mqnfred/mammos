@@ -66,6 +66,6 @@ void free_frame(uint32_t addr)
 void setup_frames(uint32_t mem_size)
 {
     frame_count = mem_size / PAGE_SIZE;
-    bitmap = kalloc(PAGE_TO_BYTE(frame_count), 0, NULL);
+    bitmap = init_kmalloc(PAGE_TO_BYTE(frame_count), 0, NULL);
     memset(bitmap, 0, PAGE_TO_BYTE(frame_count));
 }

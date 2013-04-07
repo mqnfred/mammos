@@ -20,7 +20,7 @@ void add_isr(int no, uint32_t ba, uint16_t sel, uint8_t flags)
 void setup_idt(void)
 {
     // initialize on top of the constant heap
-    idt = kalloc(256 * sizeof (struct idt_entry), 0x8, 0x0);
+    idt = init_kmalloc(256 * sizeof (struct idt_entry), 0x8, 0x0);
     memset(idt, 0, 256 * sizeof (struct idt_entry));
 
     struct idt_ptr ptr =

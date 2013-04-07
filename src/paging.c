@@ -28,8 +28,8 @@ void setup_paging(void)
     // setup kernel directory as well as the first page table in the
     // directory, they will identity map the low-memory, the kernel and
     // everything up to themselves (included)
-    ker_dir = kalloc(PAGE_SIZE, PAGE_SIZE, 0x0);
-    ker_dir->tables[0] = kalloc(PAGE_SIZE, PAGE_SIZE, 0x0);
+    ker_dir = init_kmalloc(PAGE_SIZE, PAGE_SIZE, 0x0);
+    ker_dir->tables[0] = init_kmalloc(PAGE_SIZE, PAGE_SIZE, 0x0);
     ker_dir->tables[0] = (void*)((uint32_t)ker_dir->tables[0] | 0x7);
     for (uint32_t i = 0x0; i < freemem_offset; i += PAGE_SIZE)
     {
@@ -62,13 +62,21 @@ static inline uint32_t* get_page_entry_address(uint32_t address)
 void mmap(uint32_t address)
 {
     uint32_t* page_entry = get_page_entry_address(address);
-    *page_entry = (alloc_frame() & 0xFFFFF000) | 0x7;
+
+    // map it only if it is not mapped already
+    if (*page_entry == 0x0)
+        *page_entry = (alloc_frame() & 0xFFFFF000) | 0x7;
 }
 
 
 void munmap(uint32_t address)
 {
     uint32_t* page_entry = get_page_entry_address(address);
-    free_frame(*page_entry & 0xFFFFF000);
-    *page_entry = 0x0;
+
+    // unmap it only if it is mapped already
+    if (*page_entry != 0x0)
+    {
+        free_frame(*page_entry & 0xFFFFF000);
+        *page_entry = 0x0;
+    }
 }

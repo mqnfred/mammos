@@ -15,13 +15,13 @@ LD			= ld
 CPY			= objcopy
 
 # compiler, assembler and linker flags
-CFLAGS		= -m32 -Iinclude -Werror -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding -std=c99
+CFLAGS		= -g -ggdb3 -m32 -Iinclude -Werror -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding -std=c99
 ASFLAGS		= -f elf
 LDFLAGS		= -melf_i386 --gc-sections
-CPYFLAGS	= --remove-section .eh_frame --remove-section .comment
+CPYFLAGS	= -R .eh_frame -R .comment
 
 # kernel source files
-C_SRC		= kernel.c gdt.c idt.c stdlib.c kheap.c frames.c paging.c
+C_SRC		= kernel.c gdt.c idt.c stdlib.c kheap.c frames.c paging.c heap.c
 AS_SRC		= entry.asm isr.asm
 LD_SRC		= linker.ld
 

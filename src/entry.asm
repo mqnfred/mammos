@@ -9,6 +9,8 @@
 global flush_gdt
 global flush_idt
 
+extern freemem_offset
+extern setup_heap
 extern setup_frames
 extern setup_paging
 extern setup_idt
@@ -101,9 +103,14 @@ setup_irq:
 setup_mem:
     ; the argument to setup_frames() is the memory size, passed by start()
     push    dword [esp + 4]
-
     call    setup_frames
+    add     esp, 4
+
     call    setup_paging
 
+    mov     eax, freemem_offset
+    push    dword [eax]
+    call    setup_heap
     add     esp, 4
+
     ret

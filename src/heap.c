@@ -155,5 +155,9 @@ void free(void* address)
 
 void setup_heap(uint32_t offset)
 {
+    // align the offset on a 4kib limit
+    if (offset % PAGE_SIZE != 0)
+        offset += PAGE_SIZE - (offset % PAGE_SIZE);
+
     heap_offset = offset;
 }

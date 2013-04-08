@@ -84,7 +84,9 @@ void mmap(uint32_t address)
 {
     uint32_t pgtbl_idx = (address /= PAGE_SIZE) / 1024;
     uint32_t pg_idx = address % 1024;
-    struct page_table* pgtbl = (void*)(0xFFC00000 + pgtbl_idx);
+    struct page_table* pgtbl = (void*)0xFFC00000;
+
+    pgtbl = (void*)((uint32_t)pgtbl + pgtbl_idx * sizeof (struct page_table));
 
     // allocate space for the page table
     // if it does not exist already
@@ -103,8 +105,10 @@ void mmap(uint32_t address)
 void munmap(uint32_t address)
 {
     uint32_t pgtbl_idx = (address /= PAGE_SIZE) / 1024;
-    struct page_table* pgtbl = (void*)(0xFFC00000 + pgtbl_idx);
     uint32_t pg_idx = address % 1024;
+    struct page_table* pgtbl = (void*)0xFFC00000;
+
+    pgtbl = (void*)((uint32_t)pgtbl + pgtbl_idx * sizeof (struct page_table));
 
     // unmap it only if it is mapped already
     if (pgtbl->pages[pg_idx] != 0x0)

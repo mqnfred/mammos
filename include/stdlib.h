@@ -11,6 +11,7 @@
 
 
 void memset(void* to_set, uint8_t value, uint32_t size);
+void memcpy(void* dst, void* src, uint32_t size);
 
 
 #endif // !STDLIB_H

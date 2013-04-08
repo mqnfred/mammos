@@ -16,6 +16,7 @@ extern setup_idt
 extern setup_gdt
 extern mmap
 extern kmain
+extern disk_read
 
 
 

@@ -5,7 +5,7 @@
 # include <stdlib.h>
 
 
-extern uint32_t kernel_end;
+extern uint32_t ker_end;
 extern uint32_t freemem_offset;
 
 

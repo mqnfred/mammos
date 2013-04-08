@@ -48,7 +48,7 @@ void setup_paging(void)
     }
 
     // identity map the kernel from 0xc0000000 to freemem_offset
-    for (uint32_t i = 0xc0000000; i < freemem_offset; i += PAGE_SIZE)
+    for (uint32_t i = (uint32_t)&ker_off; i < freemem_offset; i += PAGE_SIZE)
     {
 
         // get page table index and get a pointer to it in the directory

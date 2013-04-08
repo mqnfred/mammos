@@ -1,12 +1,13 @@
 ENTRY(start)
 
-kernel_offset = 0xc0000000;
+/* kernel offset in memory (here higher half) */
+ker_off = 0xc0000000;
 
 SECTIONS
 {
     . = 0x0;
 
-    .text kernel_offset : AT(kernel_offset)
+    .text ker_off : AT(ker_off)
     {
         code = .;
         *(.text)
@@ -15,19 +16,19 @@ SECTIONS
         . = ALIGN(0x10);
     }
 
-    .data : AT(kernel_offset + (data - code))
+    .data : AT(ker_off + (data - code))
     {
         data = .;
         *(.data)
         . = ALIGN(0x10);
     }
 
-    .bss : AT(kernel_offset + (bss - code))
+    .bss : AT(ker_off + (bss - code))
     {
         bss = .;
         *(.bss)
         . = ALIGN(0x10);
     }
 
-    kernel_end = .;
+    ker_end = .;
 }

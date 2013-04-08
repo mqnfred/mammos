@@ -19,7 +19,7 @@ struct page_dir
 };
 
 
-extern uint32_t kernel_offset;
+extern uint32_t ker_off;
 
 
 void mmap(uint32_t address);

@@ -14,8 +14,6 @@ target remote localhost:1234
 # setup display mode (registers + assembly)
 la n
 la n
-la n
-la n
 
 # breakpoint at bootloader and kernel offset
 b *0x7c00

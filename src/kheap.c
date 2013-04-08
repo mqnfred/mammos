@@ -1,7 +1,7 @@
 #include <kheap.h>
 
 
-uint32_t freemem_offset = (uint32_t)&kernel_end;
+uint32_t freemem_offset = (uint32_t)&ker_end;
 
 
 // this malloc is to be used ONLY before paging initialization

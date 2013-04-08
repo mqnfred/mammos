@@ -1,8 +1,6 @@
 ENTRY(start)
 
-kernel_offset = 0x100000;
-stack_offset = 0x200000;
-memory_size = 0x400 * 0x400 * 0x10;
+kernel_offset = 0xc0000000;
 
 SECTIONS
 {

@@ -5,27 +5,8 @@
 __attribute__((noreturn))
 void kmain(void)
 {
-    void* x = malloc(16);
-    (void)x;
+    uint32_t* r = (void*)0x800000;
+    *r = 9;
 
-    void* y = malloc(8);
-    (void)y;
-
-    free(x);
-
-    void* z = malloc(8);
-    (void)z;
-
-    void* a = malloc(8);
-    (void)a;
-
-    free(z);
-
-    z = malloc(16);
-    x = malloc(4096);
-    z = malloc(512);
-    z = malloc(8);
-
-    free(x);
     while (1);
 }

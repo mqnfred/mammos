@@ -33,5 +33,5 @@ void setup_idt(void)
     flush_idt(&ptr);
 
     // setup the basic IST routines
-    add_isr(0, (uint32_t)div_zero_exception, 0x08, 0x8E);
+    add_isr(14, (uint32_t)page_fault_exception, 0x08, 0x8E);
 }

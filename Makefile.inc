@@ -40,7 +40,7 @@ EM			= qemu-system-i386
 DB			= gdb
 
 # emulator flags
-EMFLAGS		= -s -S
+EMFLAGS		= -m 4096 -s -S
 DBFLAGS		= -q
 
 # various debugger definitions

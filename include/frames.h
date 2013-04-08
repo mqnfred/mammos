@@ -19,6 +19,7 @@ void setup_frames(uint32_t mem_size);
 
 
 uint32_t alloc_frame(void);
+bool alloc_spec_frame(uint32_t addr);
 void free_frame(uint32_t addr);
 
 

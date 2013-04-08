@@ -16,7 +16,9 @@
 %define CHUNK   0x7e00
 
 ; address of the kernel entry point
-%define KERNEL  0x100000
+%define KERNEL  0xc0000000
+
+%define PAGE_SIZE 0x1000
 
 
 
@@ -46,8 +48,8 @@ main:
     ; load and jump to the kernel in protected mode
     call    load_kernel
 
-    ; no probing of memory, currently sending 1G to the kernel
-    push    dword 0x400 * 0x400 * 0x400
+    ; no probing of memory, currently sending 4GBytes - 4MBytes to the kernel
+    push    dword 0x400 * 0x400 * 0x400 * 4 - PAGE_SIZE
     jmp     jump_kernel
     ;call    trigger_error
 

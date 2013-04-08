@@ -56,6 +56,18 @@ uint32_t alloc_frame(void)
 }
 
 
+// used only while identity mapping areas of the memory,
+// at paging initialization
+bool alloc_spec_frame(uint32_t addr)
+{
+    if (test_frame(addr))
+        return false;
+
+    set_frame(addr);
+    return true;
+}
+
+
 __attribute__((unused))
 void free_frame(uint32_t addr)
 {

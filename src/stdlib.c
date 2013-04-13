@@ -15,7 +15,7 @@ void memcpy(void* dst, void* src, uint32_t size)
 }
 
 
-bool strcmp(const char* str1, const char* str2)
+uint8_t strcmp(const char* str1, const char* str2)
 {
     uint32_t sum = 0;
 
@@ -29,6 +29,8 @@ bool strcmp(const char* str1, const char* str2)
         if (sum != 0)
             break;
     }
+
+    return sum;
 }
 
 
@@ -36,7 +38,7 @@ char* strcpy(char *dest, const char* src)
 {
     uint32_t i;
 
-    for (uint32_t i = 0; src[i] != '\0'; i += 1)
+    for (i = 0; src[i] != '\0'; i += 1)
         dest[i] = src[i];
     dest[i] = '\0';
 

@@ -13,7 +13,7 @@
 void memset(void* to_set, uint8_t value, uint32_t size);
 void memcpy(void* dst, void* src, uint32_t size);
 
-bool strcmp(const char* str1, const char* str2);
+uint8_t strcmp(const char* str1, const char* str2);
 char* strcpy(char *dest, const char* src);
 
 

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <disk.h>
 #include <heap.h>
+#include <tty.h>
 
 
 __attribute__((noreturn))
@@ -14,6 +15,8 @@ void kmain(void)
 
     free(ptr);
     free(copy);
+
+    setup_tty();
 
     while (1);
 }

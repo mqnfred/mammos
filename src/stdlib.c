@@ -15,17 +15,30 @@ void memcpy(void* dst, void* src, uint32_t size)
 }
 
 
-__attribute__((always_inline))
-inline void outb (uint16_t port, uint8_t value)
+bool strcmp(const char* str1, const char* str2)
 {
-  __asm__ __volatile__ ("outb %b0, %w1" : : "a" (value), "Nd" (port));
+    uint32_t sum = 0;
+
+    while (*str1 != '\0' || *str2 != '\0')
+    {
+        if (*str1 != '\0')
+            sum += *(str1++);
+        if (*str2 != '\0')
+            sum -= *(str2++);
+
+        if (sum != 0)
+            break;
+    }
 }
 
 
-__attribute__((always_inline))
-inline uint8_t inb (uint16_t port)
+char* strcpy(char *dest, const char* src)
 {
-    uint8_t value;
-    __asm__ __volatile__ ("inb %w1, %0" : "=a" (value) : "Nd" (port));
-    return value;
+    uint32_t i;
+
+    for (uint32_t i = 0; src[i] != '\0'; i += 1)
+        dest[i] = src[i];
+    dest[i] = '\0';
+
+    return dest;
 }

@@ -8,7 +8,7 @@ check: floppy
 test: floppy
 	qemu-system-i386 -m 4096 drive -s -S 2>&1 1>/dev/null &
 	sleep 0.5
-	gdb -x gdb.init -f $(BIN)/boot.o $(BIN)/kernel.o
+	gdb -x gdb.init
 
 
 drive:

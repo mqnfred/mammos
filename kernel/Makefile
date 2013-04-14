@@ -1,9 +1,9 @@
 BIN		= ../bin
 LDFLAGS	= -melf_i386 --gc-sections
-CFLAGS	= -g -ggdb3 -m32 -Iinclude -Werror -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding -std=c99
+CFLAGS	= -g -ggdb3 -m32 -Werror -Wall -Wextra -nostdlib -nostartfiles -nodefaultlibs -nostdinc -ffreestanding -std=c99
 
 
-all: build_init build_drivers build_lib buld_main link
+all: build_init build_drivers build_lib build_main link
 
 
 build_init: init

@@ -1,13 +1,65 @@
-define boot
-    set architecture i8086
-    target remote localhost:1234
+define halt
+    monitor quit
+    quit
+end
 
-    la n
-    la n
-    la n
-    la n
+define reset
+    monitor system_reset
+    stepi
+end
 
-    b *0x7c00
-    b *0x7e00
+define mbr
+    # breakpoint into stage1, setup layout and go there
+
+    reset
+    delete breakpoint
+    file ../bin/boot.o
+
+    layout asm
+    layout regs
+
+    b stage1
     continue
 end
+
+define ebr
+    # breakpoint into stage2, setup layout and go there
+
+    reset
+    delete breakpoint
+    file ../bin/boot.o
+
+    layout asm
+    layout regs
+
+    b stage2
+    continue
+end
+
+define ent
+    # breakpoint into entry, setup layout and go there
+
+    reset
+    delete breakpoint
+    file ../bin/kernel.o
+
+    layout split
+
+    b entry
+    continue
+end
+
+define ker
+    # breakpoint into kmain, setup layout and go there
+
+    reset
+    delete breakpoint
+    file ../bin/kernel.o
+
+    layout split
+
+    b kmain
+    continue
+end
+
+target remote localhost:1234

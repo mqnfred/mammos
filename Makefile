@@ -1,50 +1,35 @@
-include Makefile.inc
+.PHONY: kernel check
+
 
 all: bootloader kernel
 
-bootloader: $(SRCDIR)$(BOOT_SRC) $(BINDIR)
-	$(AS) $< -o $(BOOT_BIN)
 
-kernel: bootloader $(OBJS) $(BINDIR)
-	$(LD) $(LDFLAGS) -T $(SRCDIR)$(LD_SRC) $(OBJS) -o $(KERN_BIN) --oformat binary
-	chmod a-x $(KERN_BIN)
+kernel:
+	make -C kernel
 
-$(OBJDIR)%.o: $(SRCDIR)%.c $(OBJDIR)
-	$(CC) $(CFLAGS) -c -o $@ $<
-	$(CPY) $(CPYFLAGS) $@ $@
 
-$(OBJDIR)asm_%.o: $(SRCDIR)%.asm $(OBJDIR)
-	$(AS) $(ASFLAGS) -o $@ $<
+bootloader:
+	make -C boot
 
-drive: $(TABLE)
-	dd if=/dev/zero bs=1M count=64 of=$(DRIVE)
-	dd if=$(TABLE) of=$(DRIVE) bs=1 count=512 conv=notrunc
 
-floppy: drive bootloader kernel
-	dd if=$(BOOT_BIN) of=$(DRIVE) bs=1 count=440 conv=notrunc
-	dd if=$(KERN_BIN) of=$(DRIVE) bs=512 seek=1 count=2047 conv=notrunc
+floppy: all
+	make floppy -C check
 
-$(OBJDIR):
-	mkdir $(OBJDIR)
-
-$(BINDIR):
-	mkdir $(BINDIR)
 
 clean:
-	rm -rf $(OBJDIR)
+	make clean -C boot
+	make clean -C kernel
+	make clean -C check
+
 
 distclean: clean
-	rm -rf $(BINDIR) $(DRIVE)
+	rm -rf bin
+	make distclean -C check
 
-debug:
-	$(LD) $(LDFLAGS) -T $(SRCDIR)$(LD_SRC) $(OBJS) -o $(KERN_ELF)
-	chmod a-x $(KERN_ELF)
 
 check: floppy
-	$(EM) $(DRIVE)
+	make check -C check
 
-test: floppy debug
-	$(EM) $(EMFLAGS) $(DRIVE) 2>&1 1>/dev/null &
-	sleep 0.5
-	$(DB) $(DBFLAGS) -x $(DB_SCRIPT) -s $(KERN_ELF)
-	reset
+
+test: floppy
+	make test -C check

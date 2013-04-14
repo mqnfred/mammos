@@ -1,6 +1,8 @@
 bin/
 objs/
+check/qemu.pid
 check/drive
+check/filesystem/boot/kernel
 
 *.{o,bin}
 a.out

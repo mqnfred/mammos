@@ -27,9 +27,9 @@ distclean: clean
 	make distclean -C check
 
 
-check: floppy
+check:
 	make check -C check
 
 
-test: floppy
+test:
 	make test -C check

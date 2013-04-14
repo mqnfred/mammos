@@ -62,4 +62,5 @@ define ker
     continue
 end
 
+set confirm off
 target remote localhost:1234

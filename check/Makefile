@@ -6,9 +6,13 @@ check: floppy
 
 
 test: floppy
-	qemu-system-i386 -m 4096 drive -s -S 2>&1 1>/dev/null &
+	./launchqemu.sh
 	sleep 0.5
 	gdb -x gdb.init
+
+
+dev:
+	su -c "while true; do make test; done"
 
 
 drive:
@@ -16,18 +20,21 @@ drive:
 	mkfs.minix -1 drive
 
 
-floppy: drive
-	dd if=$(BIN)/boot.bin of=drive bs=1 count=1024 conv=notrunc
-	
+floppy: drive blend_bootloader
 	cp $(BIN)/kernel.bin filesystem/boot/kernel
 	
-	sudo mount -t minix drive mnt
+	sudo mount drive mnt
 	sudo cp -r filesystem/* mnt
 	sudo umount mnt
 
 
+blend_bootloader:
+	dd if=$(BIN)/boot.bin of=drive bs=1 count=1024 conv=notrunc
+
+
 clean:
 	rm -rf filesystem/boot/kernel
+	rm -f qemu.pid
 
 
 distclean:

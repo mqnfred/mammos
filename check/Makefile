@@ -20,7 +20,7 @@ drive:
 	mkfs.minix -1 drive
 
 
-floppy: drive blend_bootloader
+floppy: mnt drive blend_bootloader
 	cp $(BIN)/kernel.bin filesystem/boot/kernel
 	
 	sudo mount drive mnt
@@ -35,7 +35,12 @@ blend_bootloader:
 clean:
 	rm -rf filesystem/boot/kernel
 	rm -f qemu.pid
+	rm -rf mnt
 
 
 distclean:
 	rm -f drive
+
+
+mnt:
+	mkdir -p mnt

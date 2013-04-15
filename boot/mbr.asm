@@ -2,6 +2,7 @@ extern stack_offset
 extern chunk_offset
 extern data_offset
 extern stage2
+global gdt_info
 global read_sectors
 global trigger_error
 global start

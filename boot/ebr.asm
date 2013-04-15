@@ -2,6 +2,7 @@ extern data_offset
 extern kernel_offset
 extern trigger_error
 extern read_sectors
+extern gdt_info
 global stage2
 
 section .text
@@ -57,6 +58,7 @@ stage2:
 
     ; finally load the kernel in memory
     call    load_kernel_zones
+    jmp     jump_kernel
 
 
 
@@ -189,6 +191,29 @@ load_kernel_zones:
 
     done:
     ret
+
+
+
+jump_kernel:
+    ; disable interrupts and load gdt
+    cli
+    lgdt    [gdt_info]
+
+    ; actual switch to protected mode and leave the routine
+    mov     eax, cr0
+    or      al, 1
+    mov     cr0, eax
+
+    ; push the memory size
+    push    dword 0x400 * 0x400 * 0x400 * 4 - 0x1000
+
+    ; set the CS register
+    jmp     0x8:pmode
+
+    BITS 32
+    pmode:
+    jmp     kernel_offset
+
 
 
 section .data

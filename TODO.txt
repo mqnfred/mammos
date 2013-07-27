@@ -1,0 +1,5 @@
+fix disk driver in boot/stage2/utils/disk.asm (opti)
+disk driver -> switch from PM to RM to call BIOS int
+load files larger than (519 * 1024) bytes
+run correctly through directories bigger than 7 * 1024 bytes
+handle fat12/16 filesystem in bootloader

@@ -1,0 +1,31 @@
+target remote localhost:1234
+
+
+define stage1
+    set architecture i8086
+    delete breakpoints
+    file boot/debug/stage1.elf
+    b stage1
+
+    layout asm
+    layout regs
+
+    reset
+end
+
+
+define stage2
+    set architecture i386
+    delete breakpoints
+    file boot/debug/stage2.elf
+    b stage2
+
+    layout src
+    layout regs
+
+    reset
+end
+
+
+# currently working on stage2
+stage2

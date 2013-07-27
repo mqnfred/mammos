@@ -1,0 +1,2 @@
+/boot/kernel        0x100000
+/home/user/file.txt 0x200000

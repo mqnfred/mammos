@@ -1,6 +1,7 @@
-bin/
-objs/
+boot/bin/
+boot/debug/
+
 check/drive
 
-*.{o,bin}
+*.{o,bin,elf}
 a.out
